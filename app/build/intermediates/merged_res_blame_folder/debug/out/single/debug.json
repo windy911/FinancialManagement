@@ -1,0 +1,62 @@
+[
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\layout_item_person.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\layout\\item_person.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\drawable_ic_back.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\drawable\\ic_back.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\layout_activity_statistics.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\layout\\activity_statistics.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\layout_activity_person.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\layout\\activity_person.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\drawable_bg_type.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\drawable\\bg_type.xml"
+    },
+    {
+        "merged": "com.example.financialmanagement.app-merged_res-32:/drawable_bg_type.xml.flat",
+        "source": "com.example.financialmanagement.app-main-34:/drawable/bg_type.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\layout_activity_add_edit.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\layout\\activity_add_edit.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\drawable_bg_type_income.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\drawable\\bg_type_income.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\drawable_bg_card.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\drawable\\bg_card.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\drawable_bg_type_expense.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\drawable\\bg_type_expense.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\drawable_bg_input.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\drawable\\bg_input.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\layout_activity_main.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\layout_item_transaction.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\layout\\item_transaction.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\drawable_ic_launcher.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\drawable\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-merged_res-32:\\drawable_bg_summary.xml.flat",
+        "source": "C:\\gradle\\gradle-8.2.1\\daemon\\8.0\\com.example.financialmanagement.app-main-34:\\drawable\\bg_summary.xml"
+    }
+]

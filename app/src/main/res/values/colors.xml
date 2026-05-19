@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 柔情年轻化主色：蜜桃奶油系 -->
+    <color name="primary">#FF9A8B</color>
+    <color name="primary_dark">#F08080</color>
+    <color name="primary_light">#FFD6C9</color>
+    <color name="accent">#A0E7E5</color>
+    <color name="accent_dark">#7FCDCD</color>
+
+    <!-- 基础色 -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF2D2D2D</color>
+    <color name="gray">#FF8E8E93</color>
+    <color name="light_gray">#FFF9F5F2</color>
+    <color name="divider">#FFECE5E0</color>
+
+    <!-- 收支色 -->
+    <color name="income_green">#FF88D8B0</color>
+    <color name="expense_red">#FFFF8B94</color>
+
+    <!-- 背景渐变 -->
+    <color name="bg_top">#FFFFF6F2</color>
+    <color name="bg_bottom">#FFFFF0EB</color>
+</resources>
