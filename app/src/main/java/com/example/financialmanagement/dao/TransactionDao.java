@@ -250,6 +250,37 @@ public class TransactionDao {
         return total;
     }
 
+    public java.util.Map<String, double[]> getDailyTrend(String startDate, String endDate) {
+        java.util.Map<String, double[]> map = new java.util.TreeMap<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String sql = "SELECT " + DatabaseHelper.COLUMN_DATE + ", " + DatabaseHelper.COLUMN_TYPE +
+                ", SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") " +
+                "FROM " + DatabaseHelper.TABLE_TRANSACTIONS +
+                " WHERE " + DatabaseHelper.COLUMN_DATE + " >= ? AND " + DatabaseHelper.COLUMN_DATE + " <= ?" +
+                " GROUP BY " + DatabaseHelper.COLUMN_DATE + ", " + DatabaseHelper.COLUMN_TYPE +
+                " ORDER BY " + DatabaseHelper.COLUMN_DATE;
+        Cursor cursor = db.rawQuery(sql, new String[]{ startDate, endDate });
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String date = cursor.getString(0);
+                String type = cursor.getString(1);
+                double amount = cursor.getDouble(2);
+                double[] values = map.get(date);
+                if (values == null) {
+                    values = new double[2];
+                    map.put(date, values);
+                }
+                if (Transaction.TYPE_INCOME.equals(type)) {
+                    values[0] = amount;
+                } else {
+                    values[1] = amount;
+                }
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return map;
+    }
+
     private Transaction cursorToTransaction(Cursor cursor) {
         Transaction t = new Transaction();
         t.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)));

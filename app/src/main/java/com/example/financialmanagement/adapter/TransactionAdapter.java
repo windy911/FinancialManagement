@@ -4,13 +4,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.financialmanagement.R;
+import com.example.financialmanagement.dao.PersonDao;
+import com.example.financialmanagement.model.Person;
 import com.example.financialmanagement.model.Transaction;
+import com.example.financialmanagement.util.AvatarHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +24,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     private List<Transaction> transactions = new ArrayList<>();
     private OnItemClickListener listener;
+    private PersonDao personDao;
 
     public interface OnItemClickListener {
         void onEditClick(Transaction transaction);
@@ -28,6 +33,10 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
+    }
+
+    public void setPersonDao(PersonDao personDao) {
+        this.personDao = personDao;
     }
 
     public void setTransactions(List<Transaction> transactions) {
@@ -61,6 +70,14 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         String datetime = transaction.getDate() + " " + transaction.getTime();
         holder.tvDateTime.setText(datetime);
 
+        if (personDao != null) {
+            Person person = personDao.getByName(transaction.getPerson());
+            String avatar = person != null ? person.getAvatar() : null;
+            AvatarHelper.loadAvatar(holder.ivAvatar, transaction.getPerson(), avatar, 44, holder.itemView.getContext());
+        } else {
+            AvatarHelper.loadAvatar(holder.ivAvatar, transaction.getPerson(), null, 44, holder.itemView.getContext());
+        }
+
         holder.btnEdit.setOnClickListener(v -> {
             if (listener != null) listener.onEditClick(transaction);
         });
@@ -76,11 +93,13 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivAvatar;
         TextView tvType, tvAmount, tvPersonEvent, tvDateTime;
         ImageButton btnEdit, btnDelete;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            ivAvatar = itemView.findViewById(R.id.iv_avatar);
             tvType = itemView.findViewById(R.id.tv_type);
             tvAmount = itemView.findViewById(R.id.tv_amount);
             tvPersonEvent = itemView.findViewById(R.id.tv_person_event);

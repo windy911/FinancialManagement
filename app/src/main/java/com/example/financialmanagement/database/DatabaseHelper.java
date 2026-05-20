@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "financial_management.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
     public static final String TABLE_TRANSACTIONS = "transactions";
     public static final String COLUMN_ID = "id";
@@ -35,12 +35,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PERSON_ID = "person_id";
     public static final String COLUMN_PERSON_NAME = "person_name";
     public static final String COLUMN_PERSON_CREATED_AT = "created_at";
+    public static final String COLUMN_PERSON_AVATAR = "avatar";
 
     private static final String CREATE_TABLE_PERSONS =
             "CREATE TABLE " + TABLE_PERSONS + " (" +
                     COLUMN_PERSON_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COLUMN_PERSON_NAME + " TEXT NOT NULL UNIQUE, " +
+                    COLUMN_PERSON_AVATAR + " TEXT, " +
                     COLUMN_PERSON_CREATED_AT + " INTEGER NOT NULL" +
+                    ")";
+
+    public static final String TABLE_EVENTS = "events";
+    public static final String COLUMN_EVENT_ID = "event_id";
+    public static final String COLUMN_EVENT_NAME = "event_name";
+    public static final String COLUMN_EVENT_CREATED_AT = "event_created_at";
+
+    private static final String CREATE_TABLE_EVENTS =
+            "CREATE TABLE " + TABLE_EVENTS + " (" +
+                    COLUMN_EVENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_EVENT_NAME + " TEXT NOT NULL UNIQUE, " +
+                    COLUMN_EVENT_CREATED_AT + " INTEGER NOT NULL" +
                     ")";
 
     private static DatabaseHelper instance;
@@ -60,12 +74,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE_TRANSACTIONS);
         db.execSQL(CREATE_TABLE_PERSONS);
+        db.execSQL(CREATE_TABLE_EVENTS);
+        insertDefaultEvents(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 2) {
             db.execSQL(CREATE_TABLE_PERSONS);
+        }
+        if (oldVersion < 3) {
+            db.execSQL(CREATE_TABLE_EVENTS);
+            insertDefaultEvents(db);
+        }
+        if (oldVersion < 4) {
+            db.execSQL("ALTER TABLE " + TABLE_PERSONS + " ADD COLUMN " + COLUMN_PERSON_AVATAR + " TEXT");
+        }
+    }
+
+    private void insertDefaultEvents(SQLiteDatabase db) {
+        String[] defaults = { "餐饮", "交通", "购物", "娱乐", "工资", "奖金", "投资", "其他" };
+        long now = System.currentTimeMillis();
+        for (String name : defaults) {
+            try {
+                android.content.ContentValues values = new android.content.ContentValues();
+                values.put(COLUMN_EVENT_NAME, name);
+                values.put(COLUMN_EVENT_CREATED_AT, now);
+                db.insertOrThrow(TABLE_EVENTS, null, values);
+            } catch (Exception e) {
+                // ignore duplicate
+            }
         }
     }
 }

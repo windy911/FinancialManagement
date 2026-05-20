@@ -4,84 +4,66 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.financialmanagement.R;
-import com.example.financialmanagement.model.Person;
-import com.example.financialmanagement.util.AvatarHelper;
+import com.example.financialmanagement.model.Event;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder> {
+public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> {
 
-    private List<Person> persons = new ArrayList<>();
+    private List<Event> events = new ArrayList<>();
     private OnItemClickListener listener;
-    private OnAvatarClickListener avatarListener;
 
     public interface OnItemClickListener {
-        void onEditClick(Person person);
-        void onDeleteClick(Person person);
-    }
-
-    public interface OnAvatarClickListener {
-        void onAvatarClick(Person person);
+        void onEditClick(Event event);
+        void onDeleteClick(Event event);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 
-    public void setOnAvatarClickListener(OnAvatarClickListener listener) {
-        this.avatarListener = listener;
-    }
-
-    public void setPersons(List<Person> persons) {
-        this.persons = persons != null ? persons : new ArrayList<>();
+    public void setEvents(List<Event> events) {
+        this.events = events != null ? events : new ArrayList<>();
         notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_person, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_event, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Person person = persons.get(position);
-        holder.tvName.setText(person.getName());
-        AvatarHelper.loadAvatar(holder.ivAvatar, person.getName(), person.getAvatar(), 44, holder.itemView.getContext());
-
-        holder.ivAvatar.setOnClickListener(v -> {
-            if (avatarListener != null) avatarListener.onAvatarClick(person);
-        });
+        Event event = events.get(position);
+        holder.tvName.setText(event.getName());
         holder.btnEdit.setOnClickListener(v -> {
-            if (listener != null) listener.onEditClick(person);
+            if (listener != null) listener.onEditClick(event);
         });
         holder.btnDelete.setOnClickListener(v -> {
-            if (listener != null) listener.onDeleteClick(person);
+            if (listener != null) listener.onDeleteClick(event);
         });
     }
 
     @Override
     public int getItemCount() {
-        return persons.size();
+        return events.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivAvatar;
         TextView tvName;
         ImageButton btnEdit, btnDelete;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivAvatar = itemView.findViewById(R.id.iv_avatar);
             tvName = itemView.findViewById(R.id.tv_name);
             btnEdit = itemView.findViewById(R.id.btn_edit);
             btnDelete = itemView.findViewById(R.id.btn_delete);

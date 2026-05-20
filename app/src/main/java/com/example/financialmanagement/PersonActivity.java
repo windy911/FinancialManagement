@@ -1,30 +1,56 @@
 package com.example.financialmanagement;
 
+import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.financialmanagement.adapter.PersonAdapter;
 import com.example.financialmanagement.dao.PersonDao;
 import com.example.financialmanagement.model.Person;
+import com.example.financialmanagement.util.AvatarHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.io.InputStream;
 import java.util.List;
 
 public class PersonActivity extends AppCompatActivity {
+
+    private static final int REQUEST_PERMISSION = 100;
 
     private RecyclerView recyclerView;
     private View tvEmpty;
     private EditText etPersonName;
     private PersonAdapter adapter;
     private PersonDao personDao;
+    private Person pendingAvatarPerson;
+
+    private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    if (uri != null && pendingAvatarPerson != null) {
+                        saveAvatarFromUri(uri);
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +82,10 @@ public class PersonActivity extends AppCompatActivity {
             public void onDeleteClick(Person person) {
                 showDeleteDialog(person);
             }
+        });
+        adapter.setOnAvatarClickListener(person -> {
+            pendingAvatarPerson = person;
+            pickAvatar();
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -144,5 +174,57 @@ public class PersonActivity extends AppCompatActivity {
                 })
                 .setNegativeButton(R.string.no, null)
                 .show();
+    }
+
+    private void pickAvatar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_PERMISSION);
+                return;
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
+                return;
+            }
+        }
+        openImagePicker();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openImagePicker();
+            } else {
+                Toast.makeText(this, "需要权限才能选择头像", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickImageLauncher.launch(intent);
+    }
+
+    private void saveAvatarFromUri(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream == null) return;
+            Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(inputStream);
+            inputStream.close();
+            if (bitmap == null) return;
+            Bitmap scaled = AvatarHelper.scaleBitmap(bitmap, 256);
+            String base64 = AvatarHelper.bitmapToBase64(scaled);
+            personDao.updateAvatar(pendingAvatarPerson.getId(), base64);
+            loadData();
+            Toast.makeText(this, "头像已更新", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "头像设置失败", Toast.LENGTH_SHORT).show();
+        }
     }
 }

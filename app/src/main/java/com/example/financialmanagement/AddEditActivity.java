@@ -20,6 +20,9 @@ import com.example.financialmanagement.model.Person;
 import com.example.financialmanagement.model.Transaction;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import com.example.financialmanagement.dao.EventDao;
+import com.example.financialmanagement.model.Event;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,8 +40,10 @@ public class AddEditActivity extends AppCompatActivity {
 
     private TransactionDao transactionDao;
     private PersonDao personDao;
+    private EventDao eventDao;
     private Transaction editingTransaction;
     private Calendar calendar;
+    private Button btnSelectEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,7 @@ public class AddEditActivity extends AppCompatActivity {
 
         transactionDao = new TransactionDao(this);
         personDao = new PersonDao(this);
+        eventDao = new EventDao(this);
         calendar = Calendar.getInstance();
 
         rgType = findViewById(R.id.rg_type);
@@ -68,12 +74,14 @@ public class AddEditActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btn_save);
         btnCancel = findViewById(R.id.btn_cancel);
         btnSelectPerson = findViewById(R.id.btn_select_person);
+        btnSelectEvent = findViewById(R.id.btn_select_event);
 
         etDate.setOnClickListener(v -> showDatePicker());
         etTime.setOnClickListener(v -> showTimePicker());
         btnSave.setOnClickListener(v -> saveTransaction());
         btnCancel.setOnClickListener(v -> finish());
         btnSelectPerson.setOnClickListener(v -> showPersonPicker());
+        btnSelectEvent.setOnClickListener(v -> showEventPicker());
 
         Intent intent = getIntent();
         if (intent.hasExtra(EXTRA_TRANSACTION)) {
@@ -154,6 +162,26 @@ public class AddEditActivity extends AppCompatActivity {
                 .setTitle("选择人名")
                 .setAdapter(adapter, (dialog, which) -> {
                     etPerson.setText(names.get(which));
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showEventPicker() {
+        List<Event> events = eventDao.getAll();
+        if (events.isEmpty()) {
+            Toast.makeText(this, "暂无事件，请先在事件管理中添加", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        List<String> names = new ArrayList<>();
+        for (Event e : events) {
+            names.add(e.getName());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
+        new AlertDialog.Builder(this)
+                .setTitle("选择事件")
+                .setAdapter(adapter, (dialog, which) -> {
+                    etEvent.setText(names.get(which));
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();

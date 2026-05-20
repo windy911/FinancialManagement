@@ -43,9 +43,12 @@ public class MainActivity extends AppCompatActivity {
         tvSummary = findViewById(R.id.tv_summary);
         FloatingActionButton fabAdd = findViewById(R.id.fab_add);
         findViewById(R.id.btn_statistics).setOnClickListener(v -> openStatistics());
+        findViewById(R.id.btn_chart).setOnClickListener(v -> openChart());
         findViewById(R.id.btn_persons).setOnClickListener(v -> openPersons());
+        findViewById(R.id.btn_events).setOnClickListener(v -> openEvents());
 
         adapter = new TransactionAdapter();
+        adapter.setPersonDao(new com.example.financialmanagement.dao.PersonDao(this));
         adapter.setOnItemClickListener(new TransactionAdapter.OnItemClickListener() {
             @Override
             public void onEditClick(Transaction transaction) {
@@ -123,6 +126,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void openPersons() {
         Intent intent = new Intent(this, PersonActivity.class);
+        startActivity(intent);
+    }
+
+    private void openEvents() {
+        Intent intent = new Intent(this, EventActivity.class);
+        startActivity(intent);
+    }
+
+    private void openChart() {
+        Intent intent = new Intent(this, ChartActivity.class);
         startActivity(intent);
     }
 

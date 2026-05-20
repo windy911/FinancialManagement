@@ -1,0 +1,44 @@
+# Gradle files
+.gradle/
+build/
+/app/build
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+
+# Compiled class file
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+
+# Gradle wrapper jar
+gen/
+
+# APK / AAR / DEX
+*.apk
+*.ap_
+*.aab
+*.dex
+
+# External native build folder
+.cxx/
+.externalNativeBuild/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Android Signing (keystore credentials, etc)
+*.jks
+*.keystore
+signing.properties

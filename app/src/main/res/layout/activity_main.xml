@@ -63,8 +63,19 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/statistics"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:backgroundTint="@color/accent"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btn_chart"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="@string/chart_analysis"
+            android:textSize="12sp"
+            android:backgroundTint="@color/primary_light"
             android:textColor="@color/black" />
 
         <Button
@@ -72,9 +83,20 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="8dp"
             android:text="@string/manage_persons"
-            android:textSize="13sp"
+            android:textSize="12sp"
+            android:backgroundTint="@color/accent"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btn_events"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="@string/manage_events"
+            android:textSize="12sp"
             android:backgroundTint="@color/primary_light"
             android:textColor="@color/black" />
     </LinearLayout>

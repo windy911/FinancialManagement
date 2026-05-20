@@ -2,16 +2,15 @@ package com.example.financialmanagement.model;
 
 import java.io.Serializable;
 
-public class Person implements Serializable {
+public class Event implements Serializable {
     private long id;
     private String name;
-    private String avatar;
     private long createdAt;
 
-    public Person() {
+    public Event() {
     }
 
-    public Person(long id, String name, long createdAt) {
+    public Event(long id, String name, long createdAt) {
         this.id = id;
         this.name = name;
         this.createdAt = createdAt;
@@ -31,14 +30,6 @@ public class Person implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
     }
 
     public long getCreatedAt() {
