@@ -27,7 +27,14 @@ This is a single-module Android app (Java, minSdk 24, targetSdk 34) for personal
 ### Data Layer
 
 - **DatabaseHelper** — singleton `SQLiteOpenHelper` (version 4). Manages three tables: `transactions`, `persons`, `events`. Handles schema migrations in `onUpgrade()`. Must call `closeDatabase()`/`resetInstance()` before file-level DB operations (backup/restore).
-- **DAO classes** (TransactionDao, PersonDao, EventDao) — each takes a Context, obtains the singleton DatabaseHelper, and provides CRUD + query methods. No threading; all DB access is synchronous on the calling thread.
+
+  **Schema migration history**:
+  | Version | Change |
+  |---------|--------|
+  | 1 → 2 | Added `persons` table |
+  | 2 → 3 | Added `events` table; inserts 8 default events (餐饮, 交通, 购物, 娱乐, 工资, 奖金, 投资, 其他) on creation |
+  | 3 → 4 | Added `avatar` column (TEXT, Base64 image string) to `persons` table |
+- **DAO classes** (TransactionDao, PersonDao, EventDao) — each takes a Context, obtains the singleton DatabaseHelper, and provides CRUD + query methods. All DB access is **synchronous on the calling thread** with no background threading. UI code calls DAO methods directly.
 
 ### UI Layer
 
@@ -48,9 +55,29 @@ Persons and Events are reference data managed by the user. Transactions referenc
 - **ChartActivity** — line chart (MPAndroidChart) showing daily income/expense trend over 7/30/90 days
 - **PersonActivity / EventActivity** — CRUD for reference data
 
+### Activity Communication Pattern
+
+MainActivity communicates with AddEditActivity via the **legacy `startActivityForResult` / `onActivityResult` pattern** (not the modern Activity Result API):
+
+```java
+// MainActivity.java
+private static final int REQUEST_ADD = 1;
+private static final int REQUEST_EDIT = 2;
+
+startActivityForResult(intent, REQUEST_ADD);   // for new transactions
+startActivityForResult(intent, REQUEST_EDIT);  // for editing existing
+
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    // Refresh transaction list
+}
+```
+
 ### Key Utilities
 
 - **BackupHelper** — uses Storage Access Framework (SAF) for backup (.db file copy), restore (with validation and integrity check), and JSON export. No runtime permissions needed beyond SAF intents.
+
+  **Critical**: Before any file-level DB operation, `BackupHelper` must call `DatabaseHelper.closeDatabase()` to release the file lock, then `DatabaseHelper.resetInstance()` afterward to recreate the singleton. Even on failure, `resetInstance()` is called to ensure the database connection can be re-established.
 - **ReportHelper** — generates formatted text reports (daily/weekly/monthly) from filtered transaction lists, copyable to clipboard.
 - **AvatarHelper** — generates text-based avatars (first character of name on a colored circle) or loads user-selected images. Stores images as Base64 strings in the `persons` table (`avatar` column).
 
