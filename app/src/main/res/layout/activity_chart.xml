@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:text="@string/time_range"
             android:textSize="15sp"
-            android:textColor="@color/black"
+            android:textColor="@color/on_surface"
             android:textStyle="bold" />
 
         <Spinner

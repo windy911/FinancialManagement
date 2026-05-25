@@ -78,17 +78,27 @@ public class ChartActivity extends AppCompatActivity {
         lineChart.setDragEnabled(true);
         lineChart.setScaleEnabled(true);
         lineChart.setPinchZoom(true);
+        lineChart.setBackgroundColor(0xFF1E1E1E);
+
+        int textColor = 0xFFFFFFFF;
+        int gridColor = 0xFF3C3C3C;
+
         lineChart.getLegend().setTextSize(12f);
+        lineChart.getLegend().setTextColor(textColor);
 
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false);
+        xAxis.setTextColor(textColor);
+        xAxis.setAxisLineColor(gridColor);
 
         YAxis left = lineChart.getAxisLeft();
         left.setDrawGridLines(true);
-        left.setGridColor(0xFFE0E0E0);
+        left.setGridColor(gridColor);
         left.setAxisMinimum(0f);
+        left.setTextColor(textColor);
+        left.setAxisLineColor(gridColor);
 
         lineChart.getAxisRight().setEnabled(false);
     }

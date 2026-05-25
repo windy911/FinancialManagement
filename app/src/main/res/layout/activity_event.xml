@@ -50,7 +50,7 @@
             android:layout_marginStart="10dp"
             android:text="@string/add"
             android:backgroundTint="@color/accent"
-            android:textColor="@color/black" />
+            android:textColor="@color/white" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

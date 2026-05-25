@@ -16,8 +16,8 @@ import java.io.ByteArrayOutputStream;
 public class AvatarHelper {
 
     private static final int[] PALETTE = {
-            0xFFFF9A8B, 0xFFA0E7E5, 0xFF88D8B0, 0xFFFFD3B6,
-            0xFFFF8B94, 0xFFB4A7D6, 0xFF85C1E9, 0xFFF9E79F
+            0xFFE57373, 0xFF4DB6AC, 0xFF81C784, 0xFFFFB74D,
+            0xFF9575CD, 0xFF64B5F6, 0xFFF06292, 0xFFA1887F
     };
 
     public static Bitmap generateTextAvatar(String name, int sizePx, Context context) {

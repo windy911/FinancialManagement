@@ -6,8 +6,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "financial_management.db";
-    private static final int DATABASE_VERSION = 4;
+    public static final String DATABASE_NAME = "financial_management.db";
+    public static final int DATABASE_VERSION = 4;
 
     public static final String TABLE_TRANSACTIONS = "transactions";
     public static final String COLUMN_ID = "id";
@@ -64,6 +64,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             instance = new DatabaseHelper(context.getApplicationContext());
         }
         return instance;
+    }
+
+    /**
+     * 关闭数据库连接（恢复前必须调用，防止文件被占用）
+     */
+    public static synchronized void closeDatabase() {
+        if (instance != null) {
+            instance.close();
+            instance = null;
+        }
+    }
+
+    /**
+     * 重置单例实例（恢复后重新初始化）
+     */
+    public static synchronized void resetInstance() {
+        if (instance != null) {
+            instance.close();
+            instance = null;
+        }
     }
 
     private DatabaseHelper(Context context) {

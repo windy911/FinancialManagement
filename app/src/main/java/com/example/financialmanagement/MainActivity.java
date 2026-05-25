@@ -2,10 +2,16 @@ package com.example.financialmanagement;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.financialmanagement.adapter.TransactionAdapter;
 import com.example.financialmanagement.dao.TransactionDao;
 import com.example.financialmanagement.model.Transaction;
+import com.example.financialmanagement.util.BackupHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -31,10 +38,64 @@ public class MainActivity extends AppCompatActivity {
     private TransactionAdapter adapter;
     private TransactionDao transactionDao;
 
+    private final ActivityResultLauncher<Intent> backupLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    if (uri != null) {
+                        BackupHelper.performBackup(this, uri, new BackupHelper.BackupCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+                                Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                            }
+                            @Override
+                            public void onError(String error) {
+                                Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> restoreLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    if (uri != null) {
+                        showRestoreConfirmDialog(uri);
+                    }
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> exportJsonLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    if (uri != null) {
+                        BackupHelper.exportToJson(this, uri, new BackupHelper.BackupCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+                                Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                            }
+                            @Override
+                            public void onError(String error) {
+                                Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         transactionDao = new TransactionDao(this);
 
@@ -78,6 +139,72 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadData();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_backup) {
+            startBackup();
+            return true;
+        } else if (id == R.id.action_restore) {
+            startRestore();
+            return true;
+        } else if (id == R.id.action_export_json) {
+            startExportJson();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void startBackup() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/octet-stream");
+        intent.putExtra(Intent.EXTRA_TITLE, BackupHelper.generateBackupFileName());
+        backupLauncher.launch(intent);
+    }
+
+    private void startRestore() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        restoreLauncher.launch(intent);
+    }
+
+    private void startExportJson() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/json");
+        intent.putExtra(Intent.EXTRA_TITLE, BackupHelper.generateBackupFileName().replace(".db", ".json"));
+        exportJsonLauncher.launch(intent);
+    }
+
+    private void showRestoreConfirmDialog(Uri uri) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.restore_data)
+                .setMessage(R.string.confirm_restore)
+                .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    BackupHelper.performRestore(this, uri, new BackupHelper.BackupCallback() {
+                        @Override
+                        public void onSuccess(String message) {
+                            Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                            loadData();
+                        }
+                        @Override
+                        public void onError(String error) {
+                            Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                })
+                .setNegativeButton(R.string.no, null)
+                .show();
     }
 
     private void loadData() {

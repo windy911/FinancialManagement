@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 柔情年轻化主色：蜜桃奶油系 -->
-    <color name="primary">#FF9A8B</color>
-    <color name="primary_dark">#F08080</color>
-    <color name="primary_light">#FFD6C9</color>
-    <color name="accent">#A0E7E5</color>
-    <color name="accent_dark">#7FCDCD</color>
+    <!-- 暗黑色系主色 -->
+    <color name="primary">#FF6B6B</color>
+    <color name="primary_dark">#E85555</color>
+    <color name="primary_light">#FF8A8A</color>
+    <color name="accent">#4ECDC4</color>
+    <color name="accent_dark">#3DBBB3</color>
 
     <!-- 基础色 -->
     <color name="white">#FFFFFFFF</color>
-    <color name="black">#FF2D2D2D</color>
-    <color name="gray">#FF8E8E93</color>
-    <color name="light_gray">#FFF9F5F2</color>
-    <color name="divider">#FFECE5E0</color>
+    <color name="black">#FFFFFFFF</color>
+    <color name="gray">#FF9E9E9E</color>
+    <color name="light_gray">#FF121212</color>
+    <color name="divider">#FF2C2C2C</color>
 
     <!-- 收支色 -->
-    <color name="income_green">#FF88D8B0</color>
-    <color name="expense_red">#FFFF8B94</color>
+    <color name="income_green">#FF66BB6A</color>
+    <color name="expense_red">#FFEF5350</color>
 
     <!-- 背景渐变 -->
-    <color name="bg_top">#FFFFF6F2</color>
-    <color name="bg_bottom">#FFFFF0EB</color>
+    <color name="bg_top">#FF1E1E1E</color>
+    <color name="bg_bottom">#FF121212</color>
+
+    <!-- 暗黑专用色 -->
+    <color name="surface">#FF1E1E1E</color>
+    <color name="surface_elevated">#FF2C2C2C</color>
+    <color name="on_surface">#FFFFFFFF</color>
+    <color name="on_surface_secondary">#FFB0B0B0</color>
+    <color name="on_surface_hint">#FF808080</color>
 </resources>

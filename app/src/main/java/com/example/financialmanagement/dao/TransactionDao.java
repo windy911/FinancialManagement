@@ -113,6 +113,22 @@ public class TransactionDao {
         return list;
     }
 
+    public List<Transaction> getByDateRange(String startDate, String endDate) {
+        List<Transaction> list = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String selection = DatabaseHelper.COLUMN_DATE + " >= ? AND " + DatabaseHelper.COLUMN_DATE + " <= ?";
+        String[] selectionArgs = { startDate, endDate };
+        Cursor cursor = db.query(DatabaseHelper.TABLE_TRANSACTIONS, null, selection, selectionArgs, null, null,
+                DatabaseHelper.COLUMN_TIMESTAMP + " DESC");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                list.add(cursorToTransaction(cursor));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return list;
+    }
+
     public List<Transaction> getByYear(String year) {
         List<Transaction> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -159,6 +175,14 @@ public class TransactionDao {
 
     public double getTotalExpenseByYear(String year) {
         return getTotalByTypeAndYear(Transaction.TYPE_EXPENSE, year);
+    }
+
+    public double getTotalIncomeByDateRange(String startDate, String endDate) {
+        return getTotalByTypeAndDateRange(Transaction.TYPE_INCOME, startDate, endDate);
+    }
+
+    public double getTotalExpenseByDateRange(String startDate, String endDate) {
+        return getTotalByTypeAndDateRange(Transaction.TYPE_EXPENSE, startDate, endDate);
     }
 
     public List<Transaction> getByPerson(String person) {
@@ -229,6 +253,20 @@ public class TransactionDao {
         String sql = "SELECT SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") FROM " + DatabaseHelper.TABLE_TRANSACTIONS +
                 " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND " + DatabaseHelper.COLUMN_DATE + " LIKE ?";
         Cursor cursor = db.rawQuery(sql, new String[]{ type, yearMonth + "%" });
+        double total = 0;
+        if (cursor != null && cursor.moveToFirst()) {
+            total = cursor.getDouble(0);
+            cursor.close();
+        }
+        return total;
+    }
+
+    private double getTotalByTypeAndDateRange(String type, String startDate, String endDate) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String sql = "SELECT SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") FROM " + DatabaseHelper.TABLE_TRANSACTIONS +
+                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND " +
+                DatabaseHelper.COLUMN_DATE + " >= ? AND " + DatabaseHelper.COLUMN_DATE + " <= ?";
+        Cursor cursor = db.rawQuery(sql, new String[]{ type, startDate, endDate });
         double total = 0;
         if (cursor != null && cursor.moveToFirst()) {
             total = cursor.getDouble(0);

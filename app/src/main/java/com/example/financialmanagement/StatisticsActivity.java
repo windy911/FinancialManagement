@@ -1,12 +1,18 @@
 package com.example.financialmanagement;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,9 +22,12 @@ import com.example.financialmanagement.dao.PersonDao;
 import com.example.financialmanagement.dao.TransactionDao;
 import com.example.financialmanagement.model.Person;
 import com.example.financialmanagement.model.Transaction;
+import com.example.financialmanagement.util.ReportHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,17 +41,20 @@ public class StatisticsActivity extends AppCompatActivity {
     private Spinner spinnerPerson;
     private TextView tvTotalIncome, tvTotalExpense, tvBalance, tvEmpty;
     private RecyclerView recyclerView;
+    private Button btnGenerateReport;
     private TransactionAdapter adapter;
     private TransactionDao transactionDao;
     private PersonDao personDao;
 
     private List<Transaction> allTransactions;
+    private List<Transaction> currentFilteredList = new ArrayList<>();
     private List<String> periodValues = new ArrayList<>();
     private List<String> personNames = new ArrayList<>();
     private static final String ALL_PERSONS = "全部";
 
     private static final String PERIOD_YEAR = "按年";
     private static final String PERIOD_MONTH = "按月";
+    private static final String PERIOD_WEEK = "按周";
     private static final String PERIOD_DAY = "按日";
 
     @Override
@@ -70,14 +82,18 @@ public class StatisticsActivity extends AppCompatActivity {
         tvBalance = findViewById(R.id.tv_balance);
         tvEmpty = findViewById(R.id.tv_empty);
         recyclerView = findViewById(R.id.recycler_view);
+        btnGenerateReport = findViewById(R.id.btn_generate_report);
 
         adapter = new TransactionAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
+        btnGenerateReport.setOnClickListener(v -> generateAndShowReport());
+
         List<String> periods = new ArrayList<>();
         periods.add(PERIOD_YEAR);
         periods.add(PERIOD_MONTH);
+        periods.add(PERIOD_WEEK);
         periods.add(PERIOD_DAY);
         ArrayAdapter<String> periodAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, periods);
         periodAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -146,6 +162,8 @@ public class StatisticsActivity extends AppCompatActivity {
                 valuesSet.add(date.substring(0, 4));
             } else if (PERIOD_MONTH.equals(period)) {
                 valuesSet.add(date.substring(0, 7));
+            } else if (PERIOD_WEEK.equals(period)) {
+                valuesSet.add(getMondayOfDate(date));
             } else if (PERIOD_DAY.equals(period)) {
                 valuesSet.add(date);
             }
@@ -198,6 +216,18 @@ public class StatisticsActivity extends AppCompatActivity {
                 income = sumByType(list, Transaction.TYPE_INCOME);
                 expense = sumByType(list, Transaction.TYPE_EXPENSE);
             }
+        } else if (PERIOD_WEEK.equals(period)) {
+            String startDate = value;
+            String endDate = getSundayOfDate(value);
+            if (ALL_PERSONS.equals(selectedPerson)) {
+                income = transactionDao.getTotalIncomeByDateRange(startDate, endDate);
+                expense = transactionDao.getTotalExpenseByDateRange(startDate, endDate);
+                list = transactionDao.getByDateRange(startDate, endDate);
+            } else {
+                list = filterByPerson(transactionDao.getByDateRange(startDate, endDate), selectedPerson);
+                income = sumByType(list, Transaction.TYPE_INCOME);
+                expense = sumByType(list, Transaction.TYPE_EXPENSE);
+            }
         } else {
             if (ALL_PERSONS.equals(selectedPerson)) {
                 income = transactionDao.getTotalIncomeByDate(value);
@@ -217,6 +247,7 @@ public class StatisticsActivity extends AppCompatActivity {
         tvBalance.setText(String.format(Locale.getDefault(), getString(R.string.balance), balance));
 
         adapter.setTransactions(list);
+        currentFilteredList = list;
 
         if (list.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
@@ -224,6 +255,57 @@ public class StatisticsActivity extends AppCompatActivity {
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             tvEmpty.setVisibility(View.GONE);
+        }
+    }
+
+    private void generateAndShowReport() {
+        if (currentFilteredList == null || currentFilteredList.isEmpty()) {
+            Toast.makeText(this, R.string.report_no_data, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String period = (String) spinnerPeriod.getSelectedItem();
+        String value = (String) spinnerValue.getSelectedItem();
+        String selectedPerson = (String) spinnerPerson.getSelectedItem();
+
+        ReportHelper.PeriodType periodType;
+        if (PERIOD_DAY.equals(period)) {
+            periodType = ReportHelper.PeriodType.TODAY;
+        } else if (PERIOD_WEEK.equals(period)) {
+            periodType = ReportHelper.PeriodType.WEEK;
+        } else if (PERIOD_MONTH.equals(period)) {
+            periodType = ReportHelper.PeriodType.MONTH;
+        } else {
+            periodType = ReportHelper.PeriodType.MONTH;
+        }
+
+        String report = ReportHelper.generateReport(currentFilteredList, value, periodType, selectedPerson);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.report_title)
+                .setMessage(report)
+                .setPositiveButton(R.string.copy_report, (d, which) -> {
+                    copyToClipboard(report);
+                })
+                .setNegativeButton(R.string.close, null)
+                .create();
+
+        dialog.show();
+
+        // 设置对话框中消息文本的字体大小和颜色以适配暗黑主题
+        TextView messageView = dialog.findViewById(android.R.id.message);
+        if (messageView != null) {
+            messageView.setTextSize(13f);
+            messageView.setTextColor(getColor(R.color.on_surface));
+        }
+    }
+
+    private void copyToClipboard(String text) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            ClipData clip = ClipData.newPlainText(getString(R.string.report_title), text);
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(this, R.string.report_copied, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -247,11 +329,42 @@ public class StatisticsActivity extends AppCompatActivity {
         return total;
     }
 
+    private String getMondayOfDate(String dateStr) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(sdf.parse(dateStr));
+            int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+            int daysToSubtract = dayOfWeek - Calendar.MONDAY;
+            if (daysToSubtract < 0) daysToSubtract += 7;
+            cal.add(Calendar.DAY_OF_MONTH, -daysToSubtract);
+            return sdf.format(cal.getTime());
+        } catch (Exception e) {
+            return dateStr;
+        }
+    }
+
+    private String getSundayOfDate(String dateStr) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(sdf.parse(dateStr));
+            int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+            int daysToAdd = Calendar.SUNDAY - dayOfWeek;
+            if (daysToAdd < 0) daysToAdd += 7;
+            cal.add(Calendar.DAY_OF_MONTH, daysToAdd);
+            return sdf.format(cal.getTime());
+        } catch (Exception e) {
+            return dateStr;
+        }
+    }
+
     private void showEmptyState() {
         tvTotalIncome.setText(String.format(Locale.getDefault(), getString(R.string.total_income), 0.0));
         tvTotalExpense.setText(String.format(Locale.getDefault(), getString(R.string.total_expense), 0.0));
         tvBalance.setText(String.format(Locale.getDefault(), getString(R.string.balance), 0.0));
         recyclerView.setVisibility(View.GONE);
         tvEmpty.setVisibility(View.VISIBLE);
+        currentFilteredList = new ArrayList<>();
     }
 }

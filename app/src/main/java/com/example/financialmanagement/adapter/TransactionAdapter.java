@@ -59,7 +59,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         holder.tvType.setText(isIncome ? R.string.type_income : R.string.type_expense);
         holder.tvType.setBackgroundResource(isIncome ? R.drawable.bg_type_income : R.drawable.bg_type_expense);
 
-        String amountStr = String.format(Locale.getDefault(), "%.2f", transaction.getAmount());
+        String amountStr = String.format(Locale.getDefault(), "%.0f", transaction.getAmount());
         holder.tvAmount.setText(amountStr);
         holder.tvAmount.setTextColor(holder.itemView.getContext().getColor(
                 isIncome ? R.color.income_green : R.color.expense_red));

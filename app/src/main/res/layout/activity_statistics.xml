@@ -37,6 +37,18 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_input" />
+
+        <Button
+            android:id="@+id/btn_generate_report"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="0dp"
+            android:text="@string/generate_report"
+            android:textSize="12sp"
+            android:backgroundTint="@color/primary"
+            android:textColor="@color/white" />
     </LinearLayout>
 
     <LinearLayout
@@ -52,7 +64,7 @@
             android:layout_height="wrap_content"
             android:text="筛选人名："
             android:textSize="14sp"
-            android:textColor="@color/black"
+            android:textColor="@color/on_surface"
             android:textStyle="bold" />
 
         <Spinner
@@ -70,7 +82,7 @@
         android:layout_margin="16dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/white">
+        app:cardBackgroundColor="@color/surface">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -106,7 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
-                android:textColor="@color/black"
+                android:textColor="@color/on_surface"
                 android:textStyle="bold" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -119,7 +131,7 @@
         android:text="明细记录"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="@color/black" />
+        android:textColor="@color/on_surface" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
