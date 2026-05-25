@@ -2,11 +2,14 @@ package com.example.financialmanagement;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,7 +22,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.financialmanagement.adapter.TransactionAdapter;
+import com.example.financialmanagement.dao.ProjectDao;
 import com.example.financialmanagement.dao.TransactionDao;
+import com.example.financialmanagement.model.Project;
 import com.example.financialmanagement.model.Transaction;
 import com.example.financialmanagement.util.BackupHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,12 +36,17 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_ADD = 1;
     private static final int REQUEST_EDIT = 2;
+    private static final String PREFS_NAME = "app_prefs";
+    private static final String KEY_CURRENT_PROJECT = "current_project";
 
     private RecyclerView recyclerView;
     private TextView tvEmpty;
     private TextView tvSummary;
     private TransactionAdapter adapter;
     private TransactionDao transactionDao;
+    private ProjectDao projectDao;
+    private Spinner spinnerProject;
+    private String currentProject;
 
     private final ActivityResultLauncher<Intent> backupLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -98,6 +108,14 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         transactionDao = new TransactionDao(this);
+        projectDao = new ProjectDao(this);
+
+        // 读取上次使用的项目
+        SharedPreferences sp = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        currentProject = sp.getString(KEY_CURRENT_PROJECT, "默认项目");
+
+        spinnerProject = findViewById(R.id.spinner_project);
+        setupProjectSpinner();
 
         recyclerView = findViewById(R.id.recycler_view);
         tvEmpty = findViewById(R.id.tv_empty);
@@ -138,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        setupProjectSpinner();
         loadData();
     }
 
@@ -158,6 +177,9 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.action_export_json) {
             startExportJson();
+            return true;
+        } else if (id == R.id.action_manage_projects) {
+            openProjects();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -208,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadData() {
-        List<Transaction> list = transactionDao.getAll();
+        List<Transaction> list = transactionDao.getAllByProject(currentProject);
         adapter.setTransactions(list);
 
         if (list.isEmpty()) {
@@ -219,8 +241,8 @@ public class MainActivity extends AppCompatActivity {
             tvEmpty.setVisibility(View.GONE);
         }
 
-        double totalIncome = transactionDao.getTotalIncome();
-        double totalExpense = transactionDao.getTotalExpense();
+        double totalIncome = transactionDao.getTotalIncomeByProject(currentProject);
+        double totalExpense = transactionDao.getTotalExpenseByProject(currentProject);
         double balance = totalIncome - totalExpense;
 
         String summary = String.format(Locale.getDefault(),
@@ -264,6 +286,46 @@ public class MainActivity extends AppCompatActivity {
     private void openChart() {
         Intent intent = new Intent(this, ChartActivity.class);
         startActivity(intent);
+    }
+
+    private void openProjects() {
+        Intent intent = new Intent(this, ProjectActivity.class);
+        startActivity(intent);
+    }
+
+    private void setupProjectSpinner() {
+        List<Project> projects = projectDao.getAll();
+        List<String> projectNames = new java.util.ArrayList<>();
+        for (Project p : projects) {
+            projectNames.add(p.getName());
+        }
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, projectNames);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerProject.setAdapter(spinnerAdapter);
+
+        int position = projectNames.indexOf(currentProject);
+        if (position >= 0) {
+            spinnerProject.setSelection(position);
+        }
+
+        spinnerProject.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int pos, long id) {
+                String selected = projectNames.get(pos);
+                if (!selected.equals(currentProject)) {
+                    currentProject = selected;
+                    SharedPreferences sp = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                    sp.edit().putString(KEY_CURRENT_PROJECT, currentProject).apply();
+                    loadData();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+            }
+        });
     }
 
     @Override
