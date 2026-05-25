@@ -14,11 +14,12 @@ public class Transaction implements Serializable {
     private String date;
     private String time;
     private long timestamp;
+    private String project;
 
     public Transaction() {
     }
 
-    public Transaction(long id, String type, double amount, String person, String event, String date, String time, long timestamp) {
+    public Transaction(long id, String type, double amount, String person, String event, String date, String time, long timestamp, String project) {
         this.id = id;
         this.type = type;
         this.amount = amount;
@@ -27,6 +28,7 @@ public class Transaction implements Serializable {
         this.date = date;
         this.time = time;
         this.timestamp = timestamp;
+        this.project = project;
     }
 
     public long getId() {
@@ -91,6 +93,14 @@ public class Transaction implements Serializable {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
     }
 
     public boolean isIncome() {
