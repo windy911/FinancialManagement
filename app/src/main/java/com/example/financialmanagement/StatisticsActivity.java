@@ -3,6 +3,7 @@ package com.example.financialmanagement;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -51,11 +52,15 @@ public class StatisticsActivity extends AppCompatActivity {
     private List<String> periodValues = new ArrayList<>();
     private List<String> personNames = new ArrayList<>();
     private static final String ALL_PERSONS = "全部";
+    private static final String PREFS_NAME = "app_prefs";
+    private static final String KEY_CURRENT_PROJECT = "current_project";
 
     private static final String PERIOD_YEAR = "按年";
     private static final String PERIOD_MONTH = "按月";
     private static final String PERIOD_WEEK = "按周";
     private static final String PERIOD_DAY = "按日";
+
+    private String currentProject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +77,11 @@ public class StatisticsActivity extends AppCompatActivity {
 
         transactionDao = new TransactionDao(this);
         personDao = new PersonDao(this);
-        allTransactions = transactionDao.getAll();
+
+        SharedPreferences sp = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        currentProject = sp.getString(KEY_CURRENT_PROJECT, "默认项目");
+
+        allTransactions = transactionDao.getAllByProject(currentProject);
 
         spinnerPeriod = findViewById(R.id.spinner_period);
         spinnerValue = findViewById(R.id.spinner_value);
@@ -198,21 +207,21 @@ public class StatisticsActivity extends AppCompatActivity {
 
         if (PERIOD_YEAR.equals(period)) {
             if (ALL_PERSONS.equals(selectedPerson)) {
-                income = transactionDao.getTotalIncomeByYear(value);
-                expense = transactionDao.getTotalExpenseByYear(value);
-                list = transactionDao.getByYear(value);
+                income = transactionDao.getTotalIncomeByYearAndProject(value, currentProject);
+                expense = transactionDao.getTotalExpenseByYearAndProject(value, currentProject);
+                list = transactionDao.getByYearAndProject(value, currentProject);
             } else {
-                list = filterByPerson(transactionDao.getByYear(value), selectedPerson);
+                list = filterByPerson(transactionDao.getByYearAndProject(value, currentProject), selectedPerson);
                 income = sumByType(list, Transaction.TYPE_INCOME);
                 expense = sumByType(list, Transaction.TYPE_EXPENSE);
             }
         } else if (PERIOD_MONTH.equals(period)) {
             if (ALL_PERSONS.equals(selectedPerson)) {
-                income = transactionDao.getTotalIncomeByYearMonth(value);
-                expense = transactionDao.getTotalExpenseByYearMonth(value);
-                list = transactionDao.getByYearMonth(value);
+                income = transactionDao.getTotalIncomeByYearMonthAndProject(value, currentProject);
+                expense = transactionDao.getTotalExpenseByYearMonthAndProject(value, currentProject);
+                list = transactionDao.getByYearMonthAndProject(value, currentProject);
             } else {
-                list = filterByPerson(transactionDao.getByYearMonth(value), selectedPerson);
+                list = filterByPerson(transactionDao.getByYearMonthAndProject(value, currentProject), selectedPerson);
                 income = sumByType(list, Transaction.TYPE_INCOME);
                 expense = sumByType(list, Transaction.TYPE_EXPENSE);
             }
@@ -220,21 +229,21 @@ public class StatisticsActivity extends AppCompatActivity {
             String startDate = value;
             String endDate = getSundayOfDate(value);
             if (ALL_PERSONS.equals(selectedPerson)) {
-                income = transactionDao.getTotalIncomeByDateRange(startDate, endDate);
-                expense = transactionDao.getTotalExpenseByDateRange(startDate, endDate);
-                list = transactionDao.getByDateRange(startDate, endDate);
+                income = transactionDao.getTotalIncomeByDateRangeAndProject(startDate, endDate, currentProject);
+                expense = transactionDao.getTotalExpenseByDateRangeAndProject(startDate, endDate, currentProject);
+                list = transactionDao.getByDateRangeAndProject(startDate, endDate, currentProject);
             } else {
-                list = filterByPerson(transactionDao.getByDateRange(startDate, endDate), selectedPerson);
+                list = filterByPerson(transactionDao.getByDateRangeAndProject(startDate, endDate, currentProject), selectedPerson);
                 income = sumByType(list, Transaction.TYPE_INCOME);
                 expense = sumByType(list, Transaction.TYPE_EXPENSE);
             }
         } else {
             if (ALL_PERSONS.equals(selectedPerson)) {
-                income = transactionDao.getTotalIncomeByDate(value);
-                expense = transactionDao.getTotalExpenseByDate(value);
-                list = transactionDao.getByDate(value);
+                income = transactionDao.getTotalIncomeByDateAndProject(value, currentProject);
+                expense = transactionDao.getTotalExpenseByDateAndProject(value, currentProject);
+                list = transactionDao.getByDateAndProject(value, currentProject);
             } else {
-                list = filterByPerson(transactionDao.getByDate(value), selectedPerson);
+                list = filterByPerson(transactionDao.getByDateAndProject(value, currentProject), selectedPerson);
                 income = sumByType(list, Transaction.TYPE_INCOME);
                 expense = sumByType(list, Transaction.TYPE_EXPENSE);
             }

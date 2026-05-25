@@ -1,5 +1,6 @@
 package com.example.financialmanagement;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -31,6 +32,7 @@ public class ChartActivity extends AppCompatActivity {
     private Spinner spinnerRange;
     private TextView tvEmpty;
     private TransactionDao transactionDao;
+    private String currentProject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,9 @@ public class ChartActivity extends AppCompatActivity {
         spinnerRange = findViewById(R.id.spinner_range);
         tvEmpty = findViewById(R.id.tv_empty);
         transactionDao = new TransactionDao(this);
+
+        SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        currentProject = sp.getString("current_project", "默认项目");
 
         setupSpinner();
         setupChartStyle();
@@ -111,7 +116,7 @@ public class ChartActivity extends AppCompatActivity {
         cal.add(Calendar.DAY_OF_MONTH, -(days - 1));
         String startDate = sdf.format(cal.getTime());
 
-        Map<String, double[]> dataMap = transactionDao.getDailyTrend(startDate, endDate);
+        Map<String, double[]> dataMap = transactionDao.getDailyTrendByProject(startDate, endDate, currentProject);
 
         if (dataMap.isEmpty()) {
             lineChart.setVisibility(android.view.View.GONE);
