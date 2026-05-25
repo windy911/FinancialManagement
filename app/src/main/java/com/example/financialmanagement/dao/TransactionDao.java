@@ -29,6 +29,7 @@ public class TransactionDao {
         values.put(DatabaseHelper.COLUMN_DATE, transaction.getDate());
         values.put(DatabaseHelper.COLUMN_TIME, transaction.getTime());
         values.put(DatabaseHelper.COLUMN_TIMESTAMP, transaction.getTimestamp());
+        values.put(DatabaseHelper.COLUMN_PROJECT, transaction.getProject());
         return db.insert(DatabaseHelper.TABLE_TRANSACTIONS, null, values);
     }
 
@@ -42,6 +43,7 @@ public class TransactionDao {
         values.put(DatabaseHelper.COLUMN_DATE, transaction.getDate());
         values.put(DatabaseHelper.COLUMN_TIME, transaction.getTime());
         values.put(DatabaseHelper.COLUMN_TIMESTAMP, transaction.getTimestamp());
+        values.put(DatabaseHelper.COLUMN_PROJECT, transaction.getProject());
         String whereClause = DatabaseHelper.COLUMN_ID + " = ?";
         String[] whereArgs = { String.valueOf(transaction.getId()) };
         return db.update(DatabaseHelper.TABLE_TRANSACTIONS, values, whereClause, whereArgs);
@@ -67,25 +69,11 @@ public class TransactionDao {
         return transaction;
     }
 
-    public List<Transaction> getAll() {
+    public List<Transaction> getAllByProject(String project) {
         List<Transaction> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query(DatabaseHelper.TABLE_TRANSACTIONS, null, null, null, null, null,
-                DatabaseHelper.COLUMN_TIMESTAMP + " DESC");
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                list.add(cursorToTransaction(cursor));
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-        return list;
-    }
-
-    public List<Transaction> getByDate(String date) {
-        List<Transaction> list = new ArrayList<>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String selection = DatabaseHelper.COLUMN_DATE + " = ?";
-        String[] selectionArgs = { date };
+        String selection = DatabaseHelper.COLUMN_PROJECT + " = ?";
+        String[] selectionArgs = { project };
         Cursor cursor = db.query(DatabaseHelper.TABLE_TRANSACTIONS, null, selection, selectionArgs, null, null,
                 DatabaseHelper.COLUMN_TIMESTAMP + " DESC");
         if (cursor != null && cursor.moveToFirst()) {
@@ -97,11 +85,11 @@ public class TransactionDao {
         return list;
     }
 
-    public List<Transaction> getByYearMonth(String yearMonth) {
+    public List<Transaction> getByDateAndProject(String date, String project) {
         List<Transaction> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String selection = DatabaseHelper.COLUMN_DATE + " LIKE ?";
-        String[] selectionArgs = { yearMonth + "%" };
+        String selection = DatabaseHelper.COLUMN_DATE + " = ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        String[] selectionArgs = { date, project };
         Cursor cursor = db.query(DatabaseHelper.TABLE_TRANSACTIONS, null, selection, selectionArgs, null, null,
                 DatabaseHelper.COLUMN_TIMESTAMP + " DESC");
         if (cursor != null && cursor.moveToFirst()) {
@@ -113,11 +101,11 @@ public class TransactionDao {
         return list;
     }
 
-    public List<Transaction> getByDateRange(String startDate, String endDate) {
+    public List<Transaction> getByYearMonthAndProject(String yearMonth, String project) {
         List<Transaction> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String selection = DatabaseHelper.COLUMN_DATE + " >= ? AND " + DatabaseHelper.COLUMN_DATE + " <= ?";
-        String[] selectionArgs = { startDate, endDate };
+        String selection = DatabaseHelper.COLUMN_DATE + " LIKE ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        String[] selectionArgs = { yearMonth + "%", project };
         Cursor cursor = db.query(DatabaseHelper.TABLE_TRANSACTIONS, null, selection, selectionArgs, null, null,
                 DatabaseHelper.COLUMN_TIMESTAMP + " DESC");
         if (cursor != null && cursor.moveToFirst()) {
@@ -129,11 +117,12 @@ public class TransactionDao {
         return list;
     }
 
-    public List<Transaction> getByYear(String year) {
+    public List<Transaction> getByDateRangeAndProject(String startDate, String endDate, String project) {
         List<Transaction> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String selection = DatabaseHelper.COLUMN_DATE + " LIKE ?";
-        String[] selectionArgs = { year + "%" };
+        String selection = DatabaseHelper.COLUMN_DATE + " >= ? AND " + DatabaseHelper.COLUMN_DATE + " <= ? AND "
+                + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        String[] selectionArgs = { startDate, endDate, project };
         Cursor cursor = db.query(DatabaseHelper.TABLE_TRANSACTIONS, null, selection, selectionArgs, null, null,
                 DatabaseHelper.COLUMN_TIMESTAMP + " DESC");
         if (cursor != null && cursor.moveToFirst()) {
@@ -145,51 +134,11 @@ public class TransactionDao {
         return list;
     }
 
-    public double getTotalIncome() {
-        return getTotalByType(Transaction.TYPE_INCOME);
-    }
-
-    public double getTotalExpense() {
-        return getTotalByType(Transaction.TYPE_EXPENSE);
-    }
-
-    public double getTotalIncomeByDate(String date) {
-        return getTotalByTypeAndDate(Transaction.TYPE_INCOME, date);
-    }
-
-    public double getTotalExpenseByDate(String date) {
-        return getTotalByTypeAndDate(Transaction.TYPE_EXPENSE, date);
-    }
-
-    public double getTotalIncomeByYearMonth(String yearMonth) {
-        return getTotalByTypeAndYearMonth(Transaction.TYPE_INCOME, yearMonth);
-    }
-
-    public double getTotalExpenseByYearMonth(String yearMonth) {
-        return getTotalByTypeAndYearMonth(Transaction.TYPE_EXPENSE, yearMonth);
-    }
-
-    public double getTotalIncomeByYear(String year) {
-        return getTotalByTypeAndYear(Transaction.TYPE_INCOME, year);
-    }
-
-    public double getTotalExpenseByYear(String year) {
-        return getTotalByTypeAndYear(Transaction.TYPE_EXPENSE, year);
-    }
-
-    public double getTotalIncomeByDateRange(String startDate, String endDate) {
-        return getTotalByTypeAndDateRange(Transaction.TYPE_INCOME, startDate, endDate);
-    }
-
-    public double getTotalExpenseByDateRange(String startDate, String endDate) {
-        return getTotalByTypeAndDateRange(Transaction.TYPE_EXPENSE, startDate, endDate);
-    }
-
-    public List<Transaction> getByPerson(String person) {
+    public List<Transaction> getByYearAndProject(String year, String project) {
         List<Transaction> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String selection = DatabaseHelper.COLUMN_PERSON + " = ?";
-        String[] selectionArgs = { person };
+        String selection = DatabaseHelper.COLUMN_DATE + " LIKE ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        String[] selectionArgs = { year + "%", project };
         Cursor cursor = db.query(DatabaseHelper.TABLE_TRANSACTIONS, null, selection, selectionArgs, null, null,
                 DatabaseHelper.COLUMN_TIMESTAMP + " DESC");
         if (cursor != null && cursor.moveToFirst()) {
@@ -201,19 +150,76 @@ public class TransactionDao {
         return list;
     }
 
-    public double getTotalIncomeByPerson(String person) {
-        return getTotalByTypeAndPerson(Transaction.TYPE_INCOME, person);
+    public double getTotalIncomeByProject(String project) {
+        return getTotalByTypeAndProject(Transaction.TYPE_INCOME, project);
     }
 
-    public double getTotalExpenseByPerson(String person) {
-        return getTotalByTypeAndPerson(Transaction.TYPE_EXPENSE, person);
+    public double getTotalExpenseByProject(String project) {
+        return getTotalByTypeAndProject(Transaction.TYPE_EXPENSE, project);
     }
 
-    private double getTotalByTypeAndPerson(String type, String person) {
+    public double getTotalIncomeByDateAndProject(String date, String project) {
+        return getTotalByTypeAndDateAndProject(Transaction.TYPE_INCOME, date, project);
+    }
+
+    public double getTotalExpenseByDateAndProject(String date, String project) {
+        return getTotalByTypeAndDateAndProject(Transaction.TYPE_EXPENSE, date, project);
+    }
+
+    public double getTotalIncomeByYearMonthAndProject(String yearMonth, String project) {
+        return getTotalByTypeAndYearMonthAndProject(Transaction.TYPE_INCOME, yearMonth, project);
+    }
+
+    public double getTotalExpenseByYearMonthAndProject(String yearMonth, String project) {
+        return getTotalByTypeAndYearMonthAndProject(Transaction.TYPE_EXPENSE, yearMonth, project);
+    }
+
+    public double getTotalIncomeByYearAndProject(String year, String project) {
+        return getTotalByTypeAndYearAndProject(Transaction.TYPE_INCOME, year, project);
+    }
+
+    public double getTotalExpenseByYearAndProject(String year, String project) {
+        return getTotalByTypeAndYearAndProject(Transaction.TYPE_EXPENSE, year, project);
+    }
+
+    public double getTotalIncomeByDateRangeAndProject(String startDate, String endDate, String project) {
+        return getTotalByTypeAndDateRangeAndProject(Transaction.TYPE_INCOME, startDate, endDate, project);
+    }
+
+    public double getTotalExpenseByDateRangeAndProject(String startDate, String endDate, String project) {
+        return getTotalByTypeAndDateRangeAndProject(Transaction.TYPE_EXPENSE, startDate, endDate, project);
+    }
+
+    public List<Transaction> getByPersonAndProject(String person, String project) {
+        List<Transaction> list = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String selection = DatabaseHelper.COLUMN_PERSON + " = ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        String[] selectionArgs = { person, project };
+        Cursor cursor = db.query(DatabaseHelper.TABLE_TRANSACTIONS, null, selection, selectionArgs, null, null,
+                DatabaseHelper.COLUMN_TIMESTAMP + " DESC");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                list.add(cursorToTransaction(cursor));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return list;
+    }
+
+    public double getTotalIncomeByPersonAndProject(String person, String project) {
+        return getTotalByTypeAndPersonAndProject(Transaction.TYPE_INCOME, person, project);
+    }
+
+    public double getTotalExpenseByPersonAndProject(String person, String project) {
+        return getTotalByTypeAndPersonAndProject(Transaction.TYPE_EXPENSE, person, project);
+    }
+
+    private double getTotalByTypeAndPersonAndProject(String type, String person, String project) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String sql = "SELECT SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") FROM " + DatabaseHelper.TABLE_TRANSACTIONS +
-                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND " + DatabaseHelper.COLUMN_PERSON + " = ?";
-        Cursor cursor = db.rawQuery(sql, new String[]{ type, person });
+                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND "
+                + DatabaseHelper.COLUMN_PERSON + " = ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        Cursor cursor = db.rawQuery(sql, new String[]{ type, person, project });
         double total = 0;
         if (cursor != null && cursor.moveToFirst()) {
             total = cursor.getDouble(0);
@@ -222,11 +228,11 @@ public class TransactionDao {
         return total;
     }
 
-    private double getTotalByType(String type) {
+    private double getTotalByTypeAndProject(String type, String project) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String sql = "SELECT SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") FROM " + DatabaseHelper.TABLE_TRANSACTIONS +
-                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ?";
-        Cursor cursor = db.rawQuery(sql, new String[]{ type });
+                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        Cursor cursor = db.rawQuery(sql, new String[]{ type, project });
         double total = 0;
         if (cursor != null && cursor.moveToFirst()) {
             total = cursor.getDouble(0);
@@ -235,11 +241,12 @@ public class TransactionDao {
         return total;
     }
 
-    private double getTotalByTypeAndDate(String type, String date) {
+    private double getTotalByTypeAndDateAndProject(String type, String date, String project) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String sql = "SELECT SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") FROM " + DatabaseHelper.TABLE_TRANSACTIONS +
-                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND " + DatabaseHelper.COLUMN_DATE + " = ?";
-        Cursor cursor = db.rawQuery(sql, new String[]{ type, date });
+                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND "
+                + DatabaseHelper.COLUMN_DATE + " = ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        Cursor cursor = db.rawQuery(sql, new String[]{ type, date, project });
         double total = 0;
         if (cursor != null && cursor.moveToFirst()) {
             total = cursor.getDouble(0);
@@ -248,11 +255,12 @@ public class TransactionDao {
         return total;
     }
 
-    private double getTotalByTypeAndYearMonth(String type, String yearMonth) {
+    private double getTotalByTypeAndYearMonthAndProject(String type, String yearMonth, String project) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String sql = "SELECT SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") FROM " + DatabaseHelper.TABLE_TRANSACTIONS +
-                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND " + DatabaseHelper.COLUMN_DATE + " LIKE ?";
-        Cursor cursor = db.rawQuery(sql, new String[]{ type, yearMonth + "%" });
+                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND "
+                + DatabaseHelper.COLUMN_DATE + " LIKE ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        Cursor cursor = db.rawQuery(sql, new String[]{ type, yearMonth + "%", project });
         double total = 0;
         if (cursor != null && cursor.moveToFirst()) {
             total = cursor.getDouble(0);
@@ -261,12 +269,13 @@ public class TransactionDao {
         return total;
     }
 
-    private double getTotalByTypeAndDateRange(String type, String startDate, String endDate) {
+    private double getTotalByTypeAndDateRangeAndProject(String type, String startDate, String endDate, String project) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String sql = "SELECT SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") FROM " + DatabaseHelper.TABLE_TRANSACTIONS +
-                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND " +
-                DatabaseHelper.COLUMN_DATE + " >= ? AND " + DatabaseHelper.COLUMN_DATE + " <= ?";
-        Cursor cursor = db.rawQuery(sql, new String[]{ type, startDate, endDate });
+                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND "
+                + DatabaseHelper.COLUMN_DATE + " >= ? AND " + DatabaseHelper.COLUMN_DATE + " <= ? AND "
+                + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        Cursor cursor = db.rawQuery(sql, new String[]{ type, startDate, endDate, project });
         double total = 0;
         if (cursor != null && cursor.moveToFirst()) {
             total = cursor.getDouble(0);
@@ -275,11 +284,12 @@ public class TransactionDao {
         return total;
     }
 
-    private double getTotalByTypeAndYear(String type, String year) {
+    private double getTotalByTypeAndYearAndProject(String type, String year, String project) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String sql = "SELECT SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") FROM " + DatabaseHelper.TABLE_TRANSACTIONS +
-                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND " + DatabaseHelper.COLUMN_DATE + " LIKE ?";
-        Cursor cursor = db.rawQuery(sql, new String[]{ type, year + "%" });
+                " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND "
+                + DatabaseHelper.COLUMN_DATE + " LIKE ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?";
+        Cursor cursor = db.rawQuery(sql, new String[]{ type, year + "%", project });
         double total = 0;
         if (cursor != null && cursor.moveToFirst()) {
             total = cursor.getDouble(0);
@@ -288,16 +298,17 @@ public class TransactionDao {
         return total;
     }
 
-    public java.util.Map<String, double[]> getDailyTrend(String startDate, String endDate) {
+    public java.util.Map<String, double[]> getDailyTrendByProject(String startDate, String endDate, String project) {
         java.util.Map<String, double[]> map = new java.util.TreeMap<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String sql = "SELECT " + DatabaseHelper.COLUMN_DATE + ", " + DatabaseHelper.COLUMN_TYPE +
                 ", SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") " +
                 "FROM " + DatabaseHelper.TABLE_TRANSACTIONS +
-                " WHERE " + DatabaseHelper.COLUMN_DATE + " >= ? AND " + DatabaseHelper.COLUMN_DATE + " <= ?" +
+                " WHERE " + DatabaseHelper.COLUMN_DATE + " >= ? AND " + DatabaseHelper.COLUMN_DATE + " <= ? AND "
+                + DatabaseHelper.COLUMN_PROJECT + " = ?" +
                 " GROUP BY " + DatabaseHelper.COLUMN_DATE + ", " + DatabaseHelper.COLUMN_TYPE +
                 " ORDER BY " + DatabaseHelper.COLUMN_DATE;
-        Cursor cursor = db.rawQuery(sql, new String[]{ startDate, endDate });
+        Cursor cursor = db.rawQuery(sql, new String[]{ startDate, endDate, project });
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 String date = cursor.getString(0);
@@ -329,6 +340,7 @@ public class TransactionDao {
         t.setDate(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE)));
         t.setTime(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TIME)));
         t.setTimestamp(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TIMESTAMP)));
+        t.setProject(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PROJECT)));
         return t;
     }
 }
