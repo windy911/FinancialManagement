@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "financial_management.db";
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
 
     public static final String TABLE_TRANSACTIONS = "transactions";
     public static final String COLUMN_ID = "id";
@@ -57,6 +57,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_EVENT_CREATED_AT + " INTEGER NOT NULL" +
                     ")";
 
+    public static final String TABLE_PROJECTS = "projects";
+    public static final String COLUMN_PROJECT_ID = "project_id";
+    public static final String COLUMN_PROJECT_NAME = "project_name";
+    public static final String COLUMN_PROJECT_CREATED_AT = "project_created_at";
+
+    private static final String CREATE_TABLE_PROJECTS =
+            "CREATE TABLE " + TABLE_PROJECTS + " (" +
+                    COLUMN_PROJECT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_PROJECT_NAME + " TEXT NOT NULL UNIQUE, " +
+                    COLUMN_PROJECT_CREATED_AT + " INTEGER NOT NULL" +
+                    ")";
+
+    public static final String COLUMN_PROJECT = "project";
+
     private static DatabaseHelper instance;
 
     public static synchronized DatabaseHelper getInstance(Context context) {
@@ -96,6 +110,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_PERSONS);
         db.execSQL(CREATE_TABLE_EVENTS);
         insertDefaultEvents(db);
+        insertDefaultProject(db);
     }
 
     @Override
@@ -109,6 +124,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         if (oldVersion < 4) {
             db.execSQL("ALTER TABLE " + TABLE_PERSONS + " ADD COLUMN " + COLUMN_PERSON_AVATAR + " TEXT");
+        }
+        if (oldVersion < 5) {
+            db.execSQL(CREATE_TABLE_PROJECTS);
+            insertDefaultProject(db);
+            db.execSQL("ALTER TABLE " + TABLE_TRANSACTIONS + " ADD COLUMN " + COLUMN_PROJECT + " TEXT NOT NULL DEFAULT '默认项目'");
+            db.execSQL("UPDATE " + TABLE_TRANSACTIONS + " SET " + COLUMN_PROJECT + " = '默认项目'");
         }
     }
 
@@ -124,6 +145,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } catch (Exception e) {
                 // ignore duplicate
             }
+        }
+    }
+
+    private void insertDefaultProject(SQLiteDatabase db) {
+        long now = System.currentTimeMillis();
+        try {
+            android.content.ContentValues values = new android.content.ContentValues();
+            values.put(COLUMN_PROJECT_NAME, "默认项目");
+            values.put(COLUMN_PROJECT_CREATED_AT, now);
+            db.insertOrThrow(TABLE_PROJECTS, null, values);
+        } catch (Exception e) {
+            // ignore duplicate
         }
     }
 }
