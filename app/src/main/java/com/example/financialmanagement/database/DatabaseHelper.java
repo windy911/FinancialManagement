@@ -28,7 +28,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_EVENT + " TEXT NOT NULL, " +
                     COLUMN_DATE + " TEXT NOT NULL, " +
                     COLUMN_TIME + " TEXT NOT NULL, " +
-                    COLUMN_TIMESTAMP + " INTEGER NOT NULL" +
+                    COLUMN_TIMESTAMP + " INTEGER NOT NULL, " +
+                    "project TEXT NOT NULL DEFAULT '默认项目'" +
                     ")";
 
     public static final String TABLE_PERSONS = "persons";
