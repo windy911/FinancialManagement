@@ -3,6 +3,7 @@ package com.example.financialmanagement;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -225,6 +226,10 @@ public class AddEditActivity extends AppCompatActivity {
         transaction.setDate(date);
         transaction.setTime(time);
         transaction.setTimestamp(calendar.getTimeInMillis());
+
+        SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        String currentProject = sp.getString("current_project", "默认项目");
+        transaction.setProject(currentProject);
 
         if (editingTransaction != null) {
             transaction.setId(editingTransaction.getId());
