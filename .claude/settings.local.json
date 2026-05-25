@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(git commit *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git push *)",
+      "PowerShell(openspec status --change \"add-main-exit-confirm\" --json)"
     ]
   }
 }

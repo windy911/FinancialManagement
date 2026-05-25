@@ -267,6 +267,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        showExitConfirmDialog();
+    }
+
+    private void showExitConfirmDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.confirm_exit_title)
+                .setMessage(R.string.confirm_exit_message)
+                .setPositiveButton(R.string.yes, (dialog, which) -> super.onBackPressed())
+                .setNegativeButton(R.string.no, null)
+                .show();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {

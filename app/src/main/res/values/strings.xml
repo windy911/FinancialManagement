@@ -49,4 +49,6 @@
     <string name="close">关闭</string>
     <string name="report_copied">报告已复制到剪贴板</string>
     <string name="report_no_data">当前时段暂无数据，无法生成报告</string>
+    <string name="confirm_exit_title">确认退出</string>
+    <string name="confirm_exit_message">确定要退出应用吗？</string>
 </resources>
