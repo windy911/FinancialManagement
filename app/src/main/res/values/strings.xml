@@ -51,4 +51,12 @@
     <string name="report_no_data">当前时段暂无数据，无法生成报告</string>
     <string name="confirm_exit_title">确认退出</string>
     <string name="confirm_exit_message">确定要退出应用吗？</string>
+    <string name="manage_projects">项目</string>
+    <string name="hint_project_name">请输入项目名称</string>
+    <string name="no_projects">暂无项目</string>
+    <string name="project_exists">该项目已存在</string>
+    <string name="project_added">项目已添加</string>
+    <string name="project_updated">项目已更新</string>
+    <string name="project_deleted">项目已删除</string>
+    <string name="cannot_delete_current_project">无法删除当前使用的项目</string>
 </resources>
