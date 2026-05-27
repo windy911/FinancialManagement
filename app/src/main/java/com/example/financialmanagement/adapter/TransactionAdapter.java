@@ -67,7 +67,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         String personEvent = transaction.getPerson() + " - " + transaction.getEvent();
         holder.tvPersonEvent.setText(personEvent);
 
-        String datetime = transaction.getDate() + " " + transaction.getTime();
+        String datetime = "#" + transaction.getId() + " · " + transaction.getDate() + " " + transaction.getTime();
         holder.tvDateTime.setText(datetime);
 
         if (personDao != null) {
