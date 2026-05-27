@@ -362,12 +362,15 @@ public class TransactionDao {
     private List<com.example.financialmanagement.model.PersonIncome> getIncomeRanking(String whereClause, String[] whereArgs) {
         List<com.example.financialmanagement.model.PersonIncome> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String sql = "SELECT " + DatabaseHelper.COLUMN_PERSON
-                + ", SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") as total"
+        String sql = "SELECT t." + DatabaseHelper.COLUMN_PERSON
+                + ", SUM(t." + DatabaseHelper.COLUMN_AMOUNT + ") as total"
                 + ", COUNT(*) as cnt"
-                + " FROM " + DatabaseHelper.TABLE_TRANSACTIONS
-                + " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND " + whereClause
-                + " GROUP BY " + DatabaseHelper.COLUMN_PERSON
+                + ", p." + DatabaseHelper.COLUMN_PERSON_AVATAR
+                + " FROM " + DatabaseHelper.TABLE_TRANSACTIONS + " t"
+                + " LEFT JOIN " + DatabaseHelper.TABLE_PERSONS + " p"
+                + " ON t." + DatabaseHelper.COLUMN_PERSON + " = p." + DatabaseHelper.COLUMN_PERSON_NAME
+                + " WHERE t." + DatabaseHelper.COLUMN_TYPE + " = ? AND " + whereClause
+                + " GROUP BY t." + DatabaseHelper.COLUMN_PERSON
                 + " ORDER BY total DESC";
         String[] args = new String[whereArgs.length + 1];
         args[0] = Transaction.TYPE_INCOME;
@@ -378,7 +381,8 @@ public class TransactionDao {
                 String name = cursor.getString(0);
                 double total = cursor.getDouble(1);
                 int count = cursor.getInt(2);
-                list.add(new com.example.financialmanagement.model.PersonIncome(name, total, count));
+                String avatar = cursor.getString(3);
+                list.add(new com.example.financialmanagement.model.PersonIncome(name, total, count, avatar));
             } while (cursor.moveToNext());
             cursor.close();
         }
