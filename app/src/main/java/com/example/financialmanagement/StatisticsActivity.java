@@ -66,6 +66,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
     private String currentProject;
     private Spinner spinnerViewMode;
+    private View layoutPersonFilter;
     private RankingAdapter rankingAdapter;
 
     @Override
@@ -93,6 +94,7 @@ public class StatisticsActivity extends AppCompatActivity {
         spinnerPeriod = findViewById(R.id.spinner_period);
         spinnerValue = findViewById(R.id.spinner_value);
         spinnerPerson = findViewById(R.id.spinner_person);
+        layoutPersonFilter = findViewById(R.id.layout_person_filter);
         tvTotalIncome = findViewById(R.id.tv_total_income);
         tvTotalExpense = findViewById(R.id.tv_total_expense);
         tvBalance = findViewById(R.id.tv_balance);
@@ -300,11 +302,11 @@ public class StatisticsActivity extends AppCompatActivity {
     private void updateViewMode() {
         String mode = (String) spinnerViewMode.getSelectedItem();
         if (VIEW_RANKING.equals(mode)) {
-            spinnerPerson.setVisibility(View.GONE);
+            layoutPersonFilter.setVisibility(View.GONE);
             btnGenerateReport.setVisibility(View.GONE);
             loadRanking();
         } else {
-            spinnerPerson.setVisibility(View.VISIBLE);
+            layoutPersonFilter.setVisibility(View.VISIBLE);
             btnGenerateReport.setVisibility(View.VISIBLE);
             updateStatistics();
         }
