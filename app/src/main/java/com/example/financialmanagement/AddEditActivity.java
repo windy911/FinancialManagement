@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import com.example.financialmanagement.dao.TransactionDao;
 import com.example.financialmanagement.model.Person;
 import com.example.financialmanagement.model.Transaction;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import com.example.financialmanagement.dao.EventDao;
 import com.example.financialmanagement.model.Event;
@@ -237,6 +239,11 @@ public class AddEditActivity extends AppCompatActivity {
             Toast.makeText(this, "记录已更新", Toast.LENGTH_SHORT).show();
         } else {
             transactionDao.insert(transaction);
+            String logMsg = String.format("新增记录: %s %.0f %s %s %s",
+                    transaction.getType(), transaction.getAmount(),
+                    transaction.getPerson(), transaction.getEvent(), transaction.getDate());
+            Log.i("Transaction", "Bugly上报内容: " + logMsg);
+            CrashReport.postCatchedException(new Exception(logMsg));
             Toast.makeText(this, "记录已添加", Toast.LENGTH_SHORT).show();
         }
 

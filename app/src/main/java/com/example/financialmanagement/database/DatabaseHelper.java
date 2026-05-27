@@ -110,6 +110,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_TRANSACTIONS);
         db.execSQL(CREATE_TABLE_PERSONS);
         db.execSQL(CREATE_TABLE_EVENTS);
+        db.execSQL(CREATE_TABLE_PROJECTS);
         insertDefaultEvents(db);
         insertDefaultProject(db);
     }
