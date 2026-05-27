@@ -42,9 +42,10 @@ public class StatisticsActivity extends AppCompatActivity {
     private Spinner spinnerPeriod;
     private Spinner spinnerValue;
     private Spinner spinnerPerson;
-    private TextView tvTotalIncome, tvTotalExpense, tvBalance, tvEmpty;
+    private TextView tvTotalIncome, tvTotalExpense, tvBalance, tvEmpty, tvDetailTitle;
     private RecyclerView recyclerView;
     private Button btnGenerateReport;
+    private View cardStatistics;
     private TransactionAdapter adapter;
     private TransactionDao transactionDao;
     private PersonDao personDao;
@@ -99,6 +100,8 @@ public class StatisticsActivity extends AppCompatActivity {
         tvTotalExpense = findViewById(R.id.tv_total_expense);
         tvBalance = findViewById(R.id.tv_balance);
         tvEmpty = findViewById(R.id.tv_empty);
+        tvDetailTitle = findViewById(R.id.tv_detail_title);
+        cardStatistics = findViewById(R.id.card_statistics);
         recyclerView = findViewById(R.id.recycler_view);
         btnGenerateReport = findViewById(R.id.btn_generate_report);
 
@@ -303,10 +306,14 @@ public class StatisticsActivity extends AppCompatActivity {
         String mode = (String) spinnerViewMode.getSelectedItem();
         if (VIEW_RANKING.equals(mode)) {
             layoutPersonFilter.setVisibility(View.GONE);
+            cardStatistics.setVisibility(View.GONE);
+            tvDetailTitle.setVisibility(View.GONE);
             btnGenerateReport.setVisibility(View.GONE);
             loadRanking();
         } else {
             layoutPersonFilter.setVisibility(View.VISIBLE);
+            cardStatistics.setVisibility(View.VISIBLE);
+            tvDetailTitle.setVisibility(View.VISIBLE);
             btnGenerateReport.setVisibility(View.VISIBLE);
             updateStatistics();
         }
