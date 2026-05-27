@@ -25,9 +25,16 @@
         android:gravity="center_vertical">
 
         <Spinner
+            android:id="@+id/spinner_view_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_input" />
+
+        <Spinner
             android:id="@+id/spinner_period"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
+            android:layout_marginStart="8dp"
             android:background="@drawable/bg_input" />
 
         <Spinner

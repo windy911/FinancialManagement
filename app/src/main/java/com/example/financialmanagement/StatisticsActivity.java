@@ -18,10 +18,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.financialmanagement.adapter.RankingAdapter;
 import com.example.financialmanagement.adapter.TransactionAdapter;
 import com.example.financialmanagement.dao.PersonDao;
 import com.example.financialmanagement.dao.TransactionDao;
 import com.example.financialmanagement.model.Person;
+import com.example.financialmanagement.model.PersonIncome;
 import com.example.financialmanagement.model.Transaction;
 import com.example.financialmanagement.util.ReportHelper;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -59,8 +61,12 @@ public class StatisticsActivity extends AppCompatActivity {
     private static final String PERIOD_MONTH = "按月";
     private static final String PERIOD_WEEK = "按周";
     private static final String PERIOD_DAY = "按日";
+    private static final String VIEW_DETAIL = "明细";
+    private static final String VIEW_RANKING = "排行";
 
     private String currentProject;
+    private Spinner spinnerViewMode;
+    private RankingAdapter rankingAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +89,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
         allTransactions = transactionDao.getAllByProject(currentProject);
 
+        spinnerViewMode = findViewById(R.id.spinner_view_mode);
         spinnerPeriod = findViewById(R.id.spinner_period);
         spinnerValue = findViewById(R.id.spinner_value);
         spinnerPerson = findViewById(R.id.spinner_person);
@@ -94,8 +101,26 @@ public class StatisticsActivity extends AppCompatActivity {
         btnGenerateReport = findViewById(R.id.btn_generate_report);
 
         adapter = new TransactionAdapter();
+        rankingAdapter = new RankingAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+
+        // View mode spinner
+        List<String> viewModes = new ArrayList<>();
+        viewModes.add(VIEW_DETAIL);
+        viewModes.add(VIEW_RANKING);
+        ArrayAdapter<String> viewModeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, viewModes);
+        viewModeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerViewMode.setAdapter(viewModeAdapter);
+
+        spinnerViewMode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updateViewMode();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         btnGenerateReport.setOnClickListener(v -> generateAndShowReport());
 
@@ -122,7 +147,12 @@ public class StatisticsActivity extends AppCompatActivity {
         spinnerValue.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateStatistics();
+                String mode = (String) spinnerViewMode.getSelectedItem();
+                if (VIEW_RANKING.equals(mode)) {
+                    loadRanking();
+                } else {
+                    updateStatistics();
+                }
             }
 
             @Override
@@ -186,7 +216,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
         if (!periodValues.isEmpty()) {
             spinnerValue.setSelection(0);
-            updateStatistics();
+            updateViewMode();
         } else {
             showEmptyState();
         }
@@ -260,6 +290,58 @@ public class StatisticsActivity extends AppCompatActivity {
 
         if (list.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
+            tvEmpty.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            tvEmpty.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateViewMode() {
+        String mode = (String) spinnerViewMode.getSelectedItem();
+        if (VIEW_RANKING.equals(mode)) {
+            spinnerPerson.setVisibility(View.GONE);
+            btnGenerateReport.setVisibility(View.GONE);
+            loadRanking();
+        } else {
+            spinnerPerson.setVisibility(View.VISIBLE);
+            btnGenerateReport.setVisibility(View.VISIBLE);
+            updateStatistics();
+        }
+    }
+
+    private void loadRanking() {
+        if (periodValues.isEmpty()) {
+            showEmptyState();
+            return;
+        }
+
+        String period = (String) spinnerPeriod.getSelectedItem();
+        String value = (String) spinnerValue.getSelectedItem();
+
+        List<PersonIncome> ranking;
+        if (PERIOD_YEAR.equals(period)) {
+            ranking = transactionDao.getIncomeRankingByYear(value, currentProject);
+        } else if (PERIOD_MONTH.equals(period)) {
+            ranking = transactionDao.getIncomeRankingByYearMonth(value, currentProject);
+        } else if (PERIOD_WEEK.equals(period)) {
+            String startDate = value;
+            String endDate = getSundayOfDate(value);
+            ranking = transactionDao.getIncomeRankingByDateRange(startDate, endDate, currentProject);
+        } else {
+            ranking = transactionDao.getIncomeRankingByDate(value, currentProject);
+        }
+
+        recyclerView.setAdapter(rankingAdapter);
+        rankingAdapter.setItems(ranking);
+
+        tvTotalIncome.setText(String.format(Locale.getDefault(), getString(R.string.total_income), 0.0));
+        tvTotalExpense.setText(String.format(Locale.getDefault(), getString(R.string.total_expense), 0.0));
+        tvBalance.setText(String.format(Locale.getDefault(), getString(R.string.balance), 0.0));
+
+        if (ranking.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            tvEmpty.setText(R.string.no_income_data);
             tvEmpty.setVisibility(View.VISIBLE);
         } else {
             recyclerView.setVisibility(View.VISIBLE);

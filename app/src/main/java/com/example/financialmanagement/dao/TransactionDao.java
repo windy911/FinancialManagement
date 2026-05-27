@@ -330,6 +330,61 @@ public class TransactionDao {
         return map;
     }
 
+    public List<com.example.financialmanagement.model.PersonIncome> getIncomeRankingByDate(String date, String project) {
+        return getIncomeRanking(
+                DatabaseHelper.COLUMN_DATE + " = ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?",
+                new String[]{ date, project }
+        );
+    }
+
+    public List<com.example.financialmanagement.model.PersonIncome> getIncomeRankingByDateRange(String startDate, String endDate, String project) {
+        return getIncomeRanking(
+                DatabaseHelper.COLUMN_DATE + " >= ? AND " + DatabaseHelper.COLUMN_DATE + " <= ? AND "
+                        + DatabaseHelper.COLUMN_PROJECT + " = ?",
+                new String[]{ startDate, endDate, project }
+        );
+    }
+
+    public List<com.example.financialmanagement.model.PersonIncome> getIncomeRankingByYearMonth(String yearMonth, String project) {
+        return getIncomeRanking(
+                DatabaseHelper.COLUMN_DATE + " LIKE ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?",
+                new String[]{ yearMonth + "%", project }
+        );
+    }
+
+    public List<com.example.financialmanagement.model.PersonIncome> getIncomeRankingByYear(String year, String project) {
+        return getIncomeRanking(
+                DatabaseHelper.COLUMN_DATE + " LIKE ? AND " + DatabaseHelper.COLUMN_PROJECT + " = ?",
+                new String[]{ year + "%", project }
+        );
+    }
+
+    private List<com.example.financialmanagement.model.PersonIncome> getIncomeRanking(String whereClause, String[] whereArgs) {
+        List<com.example.financialmanagement.model.PersonIncome> list = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String sql = "SELECT " + DatabaseHelper.COLUMN_PERSON
+                + ", SUM(" + DatabaseHelper.COLUMN_AMOUNT + ") as total"
+                + ", COUNT(*) as cnt"
+                + " FROM " + DatabaseHelper.TABLE_TRANSACTIONS
+                + " WHERE " + DatabaseHelper.COLUMN_TYPE + " = ? AND " + whereClause
+                + " GROUP BY " + DatabaseHelper.COLUMN_PERSON
+                + " ORDER BY total DESC";
+        String[] args = new String[whereArgs.length + 1];
+        args[0] = Transaction.TYPE_INCOME;
+        System.arraycopy(whereArgs, 0, args, 1, whereArgs.length);
+        Cursor cursor = db.rawQuery(sql, args);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String name = cursor.getString(0);
+                double total = cursor.getDouble(1);
+                int count = cursor.getInt(2);
+                list.add(new com.example.financialmanagement.model.PersonIncome(name, total, count));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return list;
+    }
+
     private Transaction cursorToTransaction(Cursor cursor) {
         Transaction t = new Transaction();
         t.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)));

@@ -59,4 +59,7 @@
     <string name="project_updated">项目已更新</string>
     <string name="project_deleted">项目已删除</string>
     <string name="cannot_delete_current_project">无法删除当前使用的项目</string>
+    <string name="view_detail">明细</string>
+    <string name="view_ranking">排行</string>
+    <string name="no_income_data">暂无收入数据</string>
 </resources>
