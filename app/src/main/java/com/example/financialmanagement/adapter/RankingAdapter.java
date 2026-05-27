@@ -3,6 +3,7 @@ package com.example.financialmanagement.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.financialmanagement.R;
 import com.example.financialmanagement.model.PersonIncome;
+import com.example.financialmanagement.util.AvatarHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,8 @@ public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.ViewHold
         else if (rank == 3) colorRes = R.color.rank_bronze;
         else colorRes = R.color.on_surface;
         holder.tvRank.setTextColor(holder.itemView.getContext().getColor(colorRes));
+
+        AvatarHelper.loadAvatar(holder.ivAvatar, item.getName(), item.getAvatar(), 40, holder.itemView.getContext());
     }
 
     @Override
@@ -54,10 +58,12 @@ public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.ViewHold
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvRank, tvName, tvAmount, tvCount;
+        ImageView ivAvatar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvRank = itemView.findViewById(R.id.tv_rank);
+            ivAvatar = itemView.findViewById(R.id.iv_avatar);
             tvName = itemView.findViewById(R.id.tv_name);
             tvAmount = itemView.findViewById(R.id.tv_amount);
             tvCount = itemView.findViewById(R.id.tv_count);
