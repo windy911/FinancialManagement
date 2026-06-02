@@ -6,5 +6,19 @@
       "Bash(git push *)",
       "PowerShell(openspec status --change \"add-main-exit-confirm\" --json)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { 
+            "type": "command", 
+            "command": "node .ai-metrics/scripts/hook/index.js --project_id=7052 --project_name=FinacialManagement",
+            "timeout": 10 
+          }
+        ]
+      }
+    ]
   }
 }

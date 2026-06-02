@@ -78,24 +78,35 @@
 
         <ImageButton
             android:id="@+id/btn_edit"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:padding="4dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:padding="2dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_edit"
-            android:tint="@color/primary"
+            android:tint="@color/gray"
             android:contentDescription="@string/edit_record" />
 
         <ImageButton
             android:id="@+id/btn_delete"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:padding="4dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:padding="2dp"
             android:layout_marginStart="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_delete"
-            android:tint="@color/expense_red"
+            android:tint="@color/gray"
             android:contentDescription="@string/delete" />
+
+        <ImageButton
+            android:id="@+id/btn_copy"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_share"
+            android:tint="@color/primary"
+            android:contentDescription="复制" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

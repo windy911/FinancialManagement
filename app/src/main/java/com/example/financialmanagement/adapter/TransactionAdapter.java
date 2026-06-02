@@ -1,11 +1,15 @@
 package com.example.financialmanagement.adapter;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -85,6 +89,19 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         holder.btnDelete.setOnClickListener(v -> {
             if (listener != null) listener.onDeleteClick(transaction);
         });
+
+        holder.btnCopy.setOnClickListener(v -> {
+            String date = transaction.getDate();
+            String shortDate = date != null && date.length() >= 10 ? date.substring(5) : date;
+            String text = shortDate + " " + transaction.getPerson() + " "
+                    + String.format(Locale.getDefault(), "%.0f", transaction.getAmount());
+            Context ctx = holder.itemView.getContext();
+            ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+            if (clipboard != null) {
+                clipboard.setPrimaryClip(ClipData.newPlainText("transaction", text));
+                Snackbar.make(holder.itemView, "已复制: " + text, Snackbar.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -95,7 +112,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivAvatar;
         TextView tvType, tvAmount, tvPersonEvent, tvDateTime;
-        ImageButton btnEdit, btnDelete;
+        ImageButton btnEdit, btnDelete, btnCopy;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -106,6 +123,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             tvDateTime = itemView.findViewById(R.id.tv_datetime);
             btnEdit = itemView.findViewById(R.id.btn_edit);
             btnDelete = itemView.findViewById(R.id.btn_delete);
+            btnCopy = itemView.findViewById(R.id.btn_copy);
         }
     }
 }

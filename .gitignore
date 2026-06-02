@@ -42,3 +42,6 @@ Thumbs.db
 *.jks
 *.keystore
 signing.properties
+
+#.ai-metrics
+.ai-metrics/
