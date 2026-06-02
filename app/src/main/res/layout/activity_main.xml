@@ -103,6 +103,17 @@
             android:textSize="12sp"
             android:backgroundTint="@color/primary_light"
             android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/btn_overview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="总览"
+            android:textSize="12sp"
+            android:backgroundTint="@color/accent"
+            android:textColor="@color/white" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

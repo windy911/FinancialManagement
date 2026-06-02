@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn_chart).setOnClickListener(v -> openChart());
         findViewById(R.id.btn_persons).setOnClickListener(v -> openPersons());
         findViewById(R.id.btn_events).setOnClickListener(v -> openEvents());
+        findViewById(R.id.btn_overview).setOnClickListener(v -> openAccountOverview());
 
         adapter = new TransactionAdapter();
         adapter.setPersonDao(new com.example.financialmanagement.dao.PersonDao(this));
@@ -290,6 +291,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void openProjects() {
         Intent intent = new Intent(this, ProjectActivity.class);
+        startActivity(intent);
+    }
+
+    private void openAccountOverview() {
+        Intent intent = new Intent(this, AccountOverviewActivity.class);
         startActivity(intent);
     }
 

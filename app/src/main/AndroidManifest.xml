@@ -49,6 +49,10 @@
             android:name=".ProjectActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".AccountOverviewActivity"
+            android:exported="false" />
+
         <meta-data
             android:name="BUGLY_APPID"
             android:value="fad2bdb702" />
