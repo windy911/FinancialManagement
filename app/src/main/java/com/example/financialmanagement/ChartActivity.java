@@ -53,7 +53,7 @@ public class ChartActivity extends AppCompatActivity {
         transactionDao = new TransactionDao(this);
 
         SharedPreferences sp = getSharedPreferences("app_prefs", MODE_PRIVATE);
-        currentProject = sp.getString("current_project", "默认项目");
+        currentProject = sp.getString("current_project", "未命名");
 
         setupSpinner();
         setupChartStyle();
@@ -70,7 +70,7 @@ public class ChartActivity extends AppCompatActivity {
     }
 
     private void setupSpinner() {
-        String[] ranges = {"最近7天", "最近30天", "最近90天"};
+        String[] ranges = {"近7天", "近30天", "近90天"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ranges);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerRange.setAdapter(adapter);
